@@ -151,7 +151,7 @@ public class VorbisEncoder
             }
             else
             {
-                processingState.WriteData(floatSamples, WriteBufferSize, readIndex);
+                processingState.WriteData(floatSamples, Math.Min(WriteBufferSize, floatSamples.Length - readIndex - 1), readIndex);
             }
 
             while (!oggStream.Finished && processingState.PacketOut(out OggPacket packet))

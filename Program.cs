@@ -53,9 +53,10 @@ using (source)
         samples[i] = (float)s;
 
         i++;
-        Console.CursorLeft = 0;
-        Console.Write("{0:P}/{1:P}", (double)source.Position / source.Length, 1);
+        // Console.CursorLeft = 0;
+        // Console.Write("{0:P}/{1:P}", (double)source.Position / source.Length, 1);
     }
+    Console.WriteLine("convert done. array l = " + samples.Length);
     byte[] data = VorbisEncoder.GenerateFile([samples], source.WaveFormat.SampleRate, 1);
     File.WriteAllBytes("decoded.ogg", data);
 }
