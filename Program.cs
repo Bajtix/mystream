@@ -40,18 +40,24 @@ catch (Exception)
 
 using (source)
 {
-    using (var encoder = MediaFoundationEncoder.CreateMP3Encoder(source.WaveFormat, "output.mp3"))
-    {
-        byte[] buffer = new byte[source.WaveFormat.BytesPerSecond];
-        int read;
-        while ((read = source.Read(buffer, 0, buffer.Length)) > 0)
-        {
-            encoder.Write(buffer, 0, read);
+    using var monos = source.ToMono();
 
-            Console.CursorLeft = 0;
-            Console.Write("{0:P}/{1:P}", (double)source.Position / source.Length, 1);
-        }
+    byte[] buffer = new byte[monos.WaveFormat.BytesPerSample];
+    float[] samples = new float[(int)(monos.WaveFormat.SampleRate * source.GetLength().TotalSeconds)];
+    int read;
+    int i = 0;
+    Console.WriteLine("Bytes per sample=" + buffer.Length);
+    while (i < samples.Length && (read = monos.Read(buffer, 0, buffer.Length)) > 0)
+    {
+        double s = BitConverter.ToInt16(buffer) / (Math.Pow(2, 8 * buffer.Length));
+        samples[i] = (float)s;
+
+        i++;
+        Console.CursorLeft = 0;
+        Console.Write("{0:P}/{1:P}", (double)source.Position / source.Length, 1);
     }
+    byte[] data = VorbisEncoder.GenerateFile([samples], source.WaveFormat.SampleRate, 1);
+    File.WriteAllBytes("decoded.ogg", data);
 }
 
 var builder = WebApplication.CreateBuilder(args);
