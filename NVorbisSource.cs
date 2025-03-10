@@ -2,16 +2,14 @@ using NVorbis;
 using CSCore;
 using CSCore.Codecs;
 
-public sealed class NVorbisSource : ISampleSource
-{
+public sealed class NVorbisSource : ISampleSource {
     private readonly Stream _stream;
     private readonly VorbisReader _vorbisReader;
 
     private readonly WaveFormat _waveFormat;
     private bool _disposed;
 
-    public NVorbisSource(Stream stream)
-    {
+    public NVorbisSource(Stream stream) {
         if (stream == null)
             throw new ArgumentNullException("stream");
         if (!stream.CanRead)
@@ -21,31 +19,25 @@ public sealed class NVorbisSource : ISampleSource
         _waveFormat = new WaveFormat(_vorbisReader.SampleRate, 32, _vorbisReader.Channels, AudioEncoding.IeeeFloat);
     }
 
-    public bool CanSeek
-    {
+    public bool CanSeek {
         get { return _stream.CanSeek; }
     }
 
-    public WaveFormat WaveFormat
-    {
+    public WaveFormat WaveFormat {
         get { return _waveFormat; }
     }
 
     //got fixed through workitem #17, thanks for reporting @rgodart.
-    public long Length
-    {
+    public long Length {
         get { return CanSeek ? (long)(_vorbisReader.TotalTime.TotalSeconds * _waveFormat.SampleRate * _waveFormat.Channels) : 0; }
     }
 
     //got fixed through workitem #17, thanks for reporting @rgodart.
-    public long Position
-    {
-        get
-        {
+    public long Position {
+        get {
             return CanSeek ? (long)(_vorbisReader.TimePosition.TotalSeconds * _vorbisReader.SampleRate * _vorbisReader.Channels) : 0;
         }
-        set
-        {
+        set {
             if (!CanSeek)
                 throw new InvalidOperationException("NVorbisSource is not seekable.");
             if (value < 0 || value > Length)
@@ -55,13 +47,11 @@ public sealed class NVorbisSource : ISampleSource
         }
     }
 
-    public int Read(float[] buffer, int offset, int count)
-    {
+    public int Read(float[] buffer, int offset, int count) {
         return _vorbisReader.ReadSamples(buffer, offset, count);
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         if (!_disposed)
             _vorbisReader.Dispose();
         else
@@ -69,8 +59,7 @@ public sealed class NVorbisSource : ISampleSource
         _disposed = true;
     }
 
-    public static void Register()
-    {
+    public static void Register() {
         CodecFactory.Instance.Register("ogg-vorbis", new CodecFactoryEntry(s => new NVorbisSource(s).ToWaveSource(), ".ogg"));
     }
 }

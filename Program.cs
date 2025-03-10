@@ -4,21 +4,18 @@ using CSCore.MediaFoundation;
 
 
 var supportedFormats = MediaFoundationEncoder.GetEncoderMediaTypes(AudioSubTypes.MpegLayer3);
-if (!supportedFormats.Any())
-{
+if (!supportedFormats.Any()) {
     Console.WriteLine("The current platform does not support mp3 encoding.");
     return;
 }
 
 IWaveSource source;
-try
-{
+try {
     source = CodecFactory.Instance.GetCodec("music/test.flac");
 
     if (
         supportedFormats.All(
-            x => x.SampleRate != source.WaveFormat.SampleRate && x.Channels == source.WaveFormat.Channels))
-    {
+            x => x.SampleRate != source.WaveFormat.SampleRate && x.Channels == source.WaveFormat.Channels)) {
         //the encoder does not support the input sample rate -> convert it to any supported samplerate
         //choose the best sample rate with stereo (in order to make simple, we always use stereo in this sample)
         int sampleRate =
@@ -30,16 +27,13 @@ try
         Console.WriteLine("Channels {0} -> {1}", source.WaveFormat.Channels, 2);
         source = source.ChangeSampleRate(sampleRate);
     }
-}
-catch (Exception)
-{
+} catch (Exception) {
     Console.WriteLine("Format not supported.");
     return;
 }
 
 
-using (source)
-{
+using (source) {
     using var monos = source.ToMono();
 
     byte[] buffer = new byte[monos.WaveFormat.BytesPerSample];
@@ -47,8 +41,7 @@ using (source)
     int read;
     int i = 0;
     Console.WriteLine("Bytes per sample=" + buffer.Length);
-    while (i < samples.Length && (read = monos.Read(buffer, 0, buffer.Length)) > 0)
-    {
+    while (i < samples.Length && (read = monos.Read(buffer, 0, buffer.Length)) > 0) {
         double s = BitConverter.ToInt16(buffer) / (Math.Pow(2, 8 * buffer.Length));
         samples[i] = (float)s;
 
