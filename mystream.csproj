@@ -7,9 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Concentus" Version="2.2.2" />
+    <PackageReference Include="Concentus.Oggfile" Version="1.0.6" />
     <PackageReference Include="CSCore" Version="1.2.1.2" />
-    <PackageReference Include="NVorbis" Version="0.10.5" />
-    <PackageReference Include="OggVorbisEncoder" Version="1.2.2" />
+    <PackageReference Include="CSCore.Ogg" Version="1.0.0" />
   </ItemGroup>
 
 </Project>
